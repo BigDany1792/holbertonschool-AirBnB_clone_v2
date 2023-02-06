@@ -1,9 +1,7 @@
 #!/usr/bin/python3
 """ Console Module """
 import cmd
-from dataclasses import replace
 import sys
-from tabnanny import check
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -115,60 +113,26 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def is_float(self, params):
-        tokens = params.split(".")
-        if len(tokens) > 1:
-            return True
-        return False
-
-    def check_parameters(self, parameters, tokens):
-        """
-        parameters[1] => value
-        """
-        parameters[1] = parameters[1].replace('"', '')
-        parameters[1] = parameters[1].replace('\\"', '"')
-        parameters[1] = parameters[1].replace('_', ' ')
-
-        if self.is_float(parameters[1]):
-            parameters[1] = float(parameters[1])
-        elif parameters[1].isnumeric() and parameters[1][0] != '0':
-            parameters[1] = int(parameters[1])
-
-        if parameters[1][0] != '"':
-            # print("no se reconoce")
-            return None
-
-        if hasattr(self.classes[tokens[0]], parameters[0]):
-            return parameters
-
     def do_create(self, args):
-        """
-        Create an object of any class
-        parameters[0] => key
-        parameters[1] => value
-        """
-        line_tokens = args.split()
-
-        if not line_tokens:
+        tokens = args.split()
+        """ Create an object of any class"""
+        if len(tokens) == 0:
             print("** class name missing **")
             return
-        elif line_tokens[0] not in HBNBCommand.classes:
+        elif tokens[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-
-        new_instance = HBNBCommand.classes[line_tokens[0]]()
-        lenght_tokens = len(line_tokens)
-        for idx in range(1, lenght_tokens):
-            parameters = line_tokens[idx].split('=')
-            parameters = self.check_parameters(parameters, line_tokens)
-
-            if parameters is not None:
-                setattr(new_instance, parameters[0], parameters[1])
-            else:
-                continue
-
+        # create BaseModel name="dany"
+        # args = ["BaseModel", 'name="dany"']
+        new_instance = HBNBCommand.classes[tokens[0]]()
+        for i in range(1, len(tokens)):
+            kv_split = tokens[i].split("=")
+            # kv_split = ["name", '"dany"']
+            setattr(new_instance, kv_split[0], eval(kv_split[1]))
         storage.save()
         print(new_instance.id)
+
+
 
     def help_create(self):
         """ Help information for the create method """
@@ -363,7 +327,6 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
-
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
