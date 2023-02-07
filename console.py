@@ -127,8 +127,8 @@ class HBNBCommand(cmd.Cmd):
         new_instance = HBNBCommand.classes[tokens[0]]()
         for i in range(1, len(tokens)):
             kv_split = tokens[i].split("=")
-            # kv_split = ["name", '"dany"']
-            setattr(new_instance, kv_split[0], eval(kv_split[1]))
+            # kv_split = ["name", '"dany_12"']
+            setattr(new_instance, kv_split[0], eval(kv_split[1].replace("_", " ")))
         storage.save()
         print(new_instance.id)
 
